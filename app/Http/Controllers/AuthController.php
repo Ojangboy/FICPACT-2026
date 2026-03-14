@@ -5,64 +5,35 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Services\AuthService;
 
 class AuthController extends Controller
 {
-    public function Login(Request $request) {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:8'
-        ]);
+    protected $authService;
 
-        if(!Auth::attempt($credentials)) {
-            return response([
-                'message' => 'invalid credentials'
-            ], 401);
-        }
-
-        $user = Auth::user();
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response([
-            'message' => 'Login successful',
-            'user' => $user,
-            'token' => $token
-        ], 200);
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
     }
 
-    public function Register(Request $request) {
-        $credentials = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8|confirmed'
-        ]);
+    public function Login(Request $request)
+    {
+        $user = $this->authService->Login($request);
 
-        if(User::where('email', $credentials['email'])->exists()) {
-            return response([
-                'message' => 'email already exists'
-            ], 400);
-        }
-
-        $user = User::create([
-            'name' => $credentials['name'],
-            'email' => $credentials['email'],
-            'password' => bcrypt($credentials['password'])
-        ]);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response([
-            'message' => 'User registered successfully',
-            'user' => $user,
-            'token' => $token
-        ], 200);
+        return response()->json($user);
     }
 
-    public function Logout(Request $request) {
-        $request->user()->currentAccessToken()->delete();
+    public function Register(Request $request)
+    {
+        $user = $this->authService->Register($request);
 
-        return response([
-            'message' => 'Logged out successfully'
-        ], 200);
-    }
+        return response()->json($user);
+    }   
+
+    public function Logout(Request $request)
+    {
+        $user = $this->authService->Logout($request);
+
+        return response()->json($user);
+    }  
 }
