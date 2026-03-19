@@ -1,21 +1,22 @@
 <?php
-// API routes for the Garden of Habits application
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HabitController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\Api\GardenController;
 
-//public routes
-Route::post('/login', [App\Http\Controllers\AuthController::class, 'Login']);
-Route::post('/register', [App\Http\Controllers\AuthController::class, 'Register']);
-Route::post('/logout', [App\Http\Controllers\AuthController::class, 'Logout']);
+Route::post('/login', [AuthController::class, 'Login']);
+Route::post('/register', [AuthController::class, 'Register']);
+Route::post('/logout', [AuthController::class, 'Logout'])->middleware('auth:sanctum');
 
-//protected routes
 Route::middleware('auth:sanctum')->group(function () {
-    // User routes
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
 
-    // Habit routes
-    Route::apiResource('habits', HabitController::class);
+    Route::get('/garden', [GardenController::class, 'show']);
+
+    Route::apiResource('tasks', TaskController::class);
+    Route::patch('/tasks/{id}/complete', [TaskController::class, 'complete']);
 });
