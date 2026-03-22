@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import loginImg from '../assets/gambar-login-regist.jpeg';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -31,10 +32,10 @@ const Register = () => {
       {/* Container Utama */}
       <div className="flex flex-col md:flex-row w-full max-w-5xl bg-white rounded-[40px] shadow-xl overflow-hidden min-h-[600px]">
         
-        {/* SISI KIRI: Ilustrasi (Sama dengan Login) */}
+        {/* SISI KIRI: Ilustrasi */}
         <div className="hidden md:block md:w-1/2 relative">
           <img 
-            src="https://images.unsplash.com/photo-1501004318641-729e8e26bd05?auto=format&fit=crop&w=800&q=80" 
+            src={loginImg} 
             alt="Garden Illustration" 
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -82,7 +83,7 @@ const Register = () => {
                 <input
                   name="confirmPassword"
                   type="password"
-                  placeholder="Input password"
+                  placeholder="Confirm password"
                   className="w-full px-6 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all"
                   value={formData.confirmPassword}
                   onChange={handleChange}
