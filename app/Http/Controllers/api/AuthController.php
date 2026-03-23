@@ -34,16 +34,4 @@ class AuthController extends Controller
         $result = $this->authService->Logout($request);
         return response()->json($result['data'], $result['status']);
     }
-
-    public function Refresh(Request $request)
-    {
-        $refreshToken = $request->input('refresh_token');
-
-        if (!$refreshToken) {
-            return response()->json(['message' => 'Refresh token is required'], 422);
-        }
-
-        $result = $this->authService->Refresh($refreshToken);
-        return response()->json($result['data'], $result['status']);
-    }
 }
