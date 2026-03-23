@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('podomoro_sessions', function (Blueprint $table) {
+        Schema::create('pomodoro_sessions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->integer('duration')->default(25); // Duration in minutes
-            $table->timestamps();
-
+            $table->integer('duration_minutes')->default(25); // Duration in minutes
+            $table->enum('status', ['active', 'cooldown'])->default('active');
+            $table->timestamp('cooldown_until')->nullable();
+            $table->timestamp('created_at')->default(now());
+            
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }

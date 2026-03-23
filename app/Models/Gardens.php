@@ -9,7 +9,8 @@ class Gardens extends Model
     protected $fillable = [
         'user_id',
         'exp',
-        'hp'
+        'hp',
+        'last_decay_check'
     ];
 
     public function user() {

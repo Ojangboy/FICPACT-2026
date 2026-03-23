@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\User;
 use App\Models\Gardens;
+use App\Models\RefreshToken;
 
 class UserRepository
 {
@@ -22,11 +23,46 @@ class UserRepository
         return User::where('email', $email)->exists();
     }
 
-    public function createGardenForUser(User $user, array $data = []): Gardens
+    public function createGardenForUser(User $user, array $data): Gardens
     {
         return $user->garden()->create([
-            'exp' => $data['exp'] ?? 0,
             'hp' => $data['hp'] ?? 100,
         ]);
     }
+
+    public function createRefreshToken(User $user, string $token): RefreshToken
+    {
+        return $user->refreshTokens()->create([
+            'token' => $token,
+        ]);
+    }
+
+    public function updateExp(User $user, int $exp): User
+    {
+        $user->update([
+            'total_exp' => $user->total_exp + $exp,
+        ]);
+
+        return $user->fresh();
+    }
+
+    public function updateLevel(User $user, int $level): User
+    {
+        $user->update([
+            'level' => $user->level + $level,
+        ]);
+
+        return $user->fresh();
+    }
+
+    public function currentLevel(User $user): int
+    {
+        return $user->level;
+    }
+
+    public function currentExp(User $user): int
+    {
+        return $user->total_exp;
+    }
+
 }
