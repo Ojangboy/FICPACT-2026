@@ -4,17 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Tasks extends Model
+class PomodoroSessions extends Model
 {
     protected $fillable = [
         'user_id',
-        'title',
-        'description',
-        'difficulty',
-        'deadline',
-        'is_completed',
-        'created_at',
-        'updated_at',
+        'duration'
     ];
 
     public function user() {

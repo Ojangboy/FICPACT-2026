@@ -11,11 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('gardens', function (Blueprint $table) {
+        Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->integer('exp')->default(0);
-            $table->integer('hp')->default(100);
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->enum('difficulty', ['easy', 'medium', 'hard'])->default('easy');
+            $table->dateTime('deadline');
+            $table->boolean('is_completed')->default(false);
+            $table->timestamp('completed_at')->nullable();
+            $table->integer('exp_gained')->default(0);
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
@@ -27,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('gardens');
+        Schema::dropIfExists('tasks');
     }
 };

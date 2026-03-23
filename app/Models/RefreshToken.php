@@ -4,14 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PodomoroSessions extends Model
+class RefreshToken extends Model
 {
     protected $fillable = [
         'user_id',
-        'duration'
+        'token',
+        'expires_at',
     ];
 
-    public function user() {
+    protected $casts = [
+        'expires_at' => 'datetime',
+    ];
+
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 }

@@ -23,6 +23,11 @@ class TaskRepository
         return $user->tasks()->find($id);
     }
 
+    public function getDifficulty(User $user): ?Tasks
+    {
+        return $user->tasks()->where('is_completed', false)->first();
+    }
+
     public function updateTask(Tasks $task, array $data): Tasks
     {
         $task->update($data);
@@ -34,20 +39,13 @@ class TaskRepository
         return (bool) $task->delete();
     }
 
-    public function getGardenByUser(User $user): ?Gardens
-    {
-        return $user->garden;
-    }
-
-    public function updateGarden(Gardens $garden, array $data): Gardens
-    {
-        $garden->update($data);
-        return $garden->fresh();
-    }
-
     public function markCompleted(Tasks $task): Tasks
     {
-        $task->update(['is_completed' => true]);
+        $task->update([
+            'is_completed' => true,
+            'completed_at' => now(),
+        ]);
+
         return $task->fresh();
     }
 }
