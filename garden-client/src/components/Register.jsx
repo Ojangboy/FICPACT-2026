@@ -1,30 +1,53 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import loginImg from '../assets/gambar-login-regist.jpeg';
+import { authApi } from '../api/api';
 
 const Register = () => {
   const [formData, setFormData] = useState({
     username: '',
+    email: '',
     password: '',
     confirmPassword: ''
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Password dan Confirm Password tidak sama.');
+      return;
+    }
+
     setLoading(true);
-    
-    // Simulasi proses registrasi
-    setTimeout(() => {
+    try {
+      const res = await authApi.register({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        password_confirmation: formData.confirmPassword,
+      });
+
+      localStorage.setItem('access_token', res.data.access_token);
+      localStorage.setItem('refresh_token', res.data.refresh_token);
+
+      navigate('/dashboard');
+    } catch (err) {
+      const msg = err?.data?.message ?? err?.data?.data?.message ?? 'Registrasi gagal, coba lagi.';
+      setError(msg);
+    } finally {
       setLoading(false);
-      navigate('/login');
-    }, 1000);
+    }
   };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#FDE2E4] p-4 font-sans">
@@ -63,6 +86,20 @@ const Register = () => {
                 />
               </div>
 
+              {/* Field Email */}
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-semibold text-gray-600 ml-1">Email</label>
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="Input email"
+                  className="w-full px-6 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
               {/* Field Password */}
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-semibold text-gray-600 ml-1">Password</label>
@@ -90,6 +127,11 @@ const Register = () => {
                   required
                 />
               </div>
+
+              {/* Error message */}
+              {error && (
+                <p className="text-sm text-red-500 text-center font-medium">{error}</p>
+              )}
 
               {/* Tombol Register Now! */}
               <button

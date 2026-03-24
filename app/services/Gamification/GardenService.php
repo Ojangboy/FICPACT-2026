@@ -84,4 +84,37 @@ class GardenService
             ],
         ];
     }
+
+    public function syncPlantStage(User $user): void
+    {
+        $garden = $this->gardenRepository->getGardenByUser($user);
+
+        if ($garden === null) {
+            return;
+        }
+
+        $newStage = $this->resolveStage($user->level);
+
+        $stageOrder = ['seed' => 0, 'sprout' => 1, 'tree' => 2];
+        $currentOrder = $stageOrder[$garden->plant_stage] ?? 0;
+        $newOrder     = $stageOrder[$newStage] ?? 0;
+
+        // Stage hanya naik, tidak pernah turun
+        if ($newOrder > $currentOrder) {
+            $this->gardenRepository->updatePlantStage($garden, $newStage);
+        }
+    }
+
+    private function resolveStage(int $level): string
+    {
+        if ($level >= 31) {
+            return 'tree';
+        }
+
+        if ($level >= 16) {
+            return 'sprout';
+        }
+
+        return 'seed';
+    }
 }

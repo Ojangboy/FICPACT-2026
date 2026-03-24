@@ -1,22 +1,35 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import loginImg from '../assets/gambar-login-regist.jpeg'; 
+import loginImg from '../assets/gambar-login-regist.jpeg';
+import { authApi } from '../api/api';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const res = await authApi.login({ email, password });
+
+      localStorage.setItem('access_token', res.data.access_token);
+      localStorage.setItem('refresh_token', res.data.refresh_token);
+
       navigate('/dashboard');
-    }, 1000);
+    } catch (err) {
+      const msg = err?.data?.message ?? err?.data?.data?.message ?? 'Login gagal, coba lagi.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#FDE2E4] p-4 font-sans">
@@ -41,15 +54,15 @@ const Login = () => {
             <h2 className="text-4xl font-bold text-gray-800 mb-10">Login</h2>
             
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Field Username */}
+              {/* Field Email */}
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-gray-600 ml-1">Username</label>
+                <label className="text-sm font-semibold text-gray-600 ml-1">Email</label>
                 <input
-                  type="text"
-                  placeholder="Input username"
+                  type="email"
+                  placeholder="Input email"
                   className="w-full px-6 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
@@ -71,6 +84,11 @@ const Login = () => {
                   </button>
                 </div>
               </div>
+
+              {/* Error message */}
+              {error && (
+                <p className="text-sm text-red-500 text-center font-medium">{error}</p>
+              )}
 
               {/* Tombol Login Oranye */}
               <button

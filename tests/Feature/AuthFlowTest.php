@@ -33,9 +33,9 @@ class AuthFlowTest extends TestCase
 
         $user = User::where('email', 'a@example.com')->first();
         $this->assertDatabaseHas('gardens', [
-            'user_id' => $user->id,
-            'exp' => 0,
-            'hp' => 100,
+            'user_id'     => $user->id,
+            'plant_stage' => 'seed',
+            'hp'          => 100,
         ]);
     }
 

@@ -34,4 +34,12 @@ class GardenRepository
         ]);
         return $garden->fresh();
     }
+
+    public function updatePlantStage(Gardens $garden, string $stage): Gardens
+    {
+        $garden->update([
+            'plant_stage' => $stage,
+        ]);
+        return $garden->fresh();
+    }
 }
