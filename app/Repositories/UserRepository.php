@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Models\User;
 use App\Models\Gardens;
-use App\Models\RefreshToken;
 
 class UserRepository
 {
@@ -27,13 +26,6 @@ class UserRepository
     {
         return $user->garden()->create([
             'hp' => $data['hp'] ?? 100,
-        ]);
-    }
-
-    public function createRefreshToken(User $user, string $token): RefreshToken
-    {
-        return $user->refreshTokens()->create([
-            'token' => $token,
         ]);
     }
 

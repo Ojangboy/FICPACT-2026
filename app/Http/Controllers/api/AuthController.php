@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
-use App\Services\AuthService;
+use App\Services\Auth\AuthService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequests;
 use App\Http\Requests\LoginRequests;

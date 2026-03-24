@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Task;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
