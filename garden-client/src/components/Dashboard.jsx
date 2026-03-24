@@ -85,9 +85,7 @@ const Dashboard = () => {
             <div className="hidden md:flex items-center space-x-10 font-bold text-sm text-green-950">
               <a href="#" className="hover:text-pink-600 transition">Home</a>
               <a href="#" className="hover:text-pink-600 transition">How it Works</a>
-              <button className="bg-[#FFB300] hover:bg-orange-500 text-black px-6 py-2 rounded-full transition shadow-md font-bold text-xs">
-                Get Started
-              </button>
+              <a href="#" className="hover:text-pink-600 transition">Key Features</a>
               <a href="#" className="hover:text-pink-600 transition">Contact</a>
             </div>
           </nav>
@@ -103,10 +101,7 @@ const Dashboard = () => {
           </p>
           <div className="flex space-x-6">
             <button className="bg-[#B3529E] hover:bg-purple-700 text-white px-10 py-4 rounded-full font-extrabold transition shadow-xl active:scale-95">
-              Start Planting
-            </button>
-            <button className="bg-white/90 hover:bg-white text-gray-700 px-10 py-4 rounded-full font-extrabold transition shadow-xl backdrop-blur-sm active:scale-95">
-              Learn More
+              View Garden
             </button>
           </div>
         </div>
