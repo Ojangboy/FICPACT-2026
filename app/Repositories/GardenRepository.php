@@ -12,17 +12,10 @@ class GardenRepository
         return $user->garden;
     }
 
-    public function updateGarden(Gardens $garden, array $data): Gardens
-    {
-        $garden->update($data);
-        return $garden->fresh();
-    }
-
     public function updateHp(Gardens $garden, int $hp): Gardens
     {
-        $garden->update([
-            'hp' => $garden->hp + $hp,
-        ]);
+        $newHp = max(0, min(100, $garden->hp + $hp));
+        $garden->update(['hp' => $newHp]);
         return $garden->fresh();
     }
 

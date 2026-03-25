@@ -19,20 +19,37 @@ class AuthController extends Controller
 
     public function Login(LoginRequests $request)
     {
-        $result = $this->authService->Login($request->validated());
-        return response()->json($result['data'], $result['status']);
+        $data = $this->authService->Login($request->validated());
+
+        if (!$data) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
+        }
+
+        return response()->json([
+            'message' => 'Login successful',
+            'data'    => $data,
+        ], 200);
     }
 
     public function Register(RegisterRequests $request)
     {
-        $result = $this->authService->Register($request->validated());
-        return response()->json($result['data'], $result['status']);
+        $data = $this->authService->Register($request->validated());
+
+        if (!$data) {
+            return response()->json(['message' => 'Username already taken'], 409);
+        }
+
+        return response()->json([
+            'message' => 'User registered successfully',
+            'data'    => $data,
+        ], 201);
     }
 
     public function Logout(Request $request)
     {
-        $result = $this->authService->Logout($request);
-        return response()->json($result['data'], $result['status']);
+        $this->authService->Logout($request);
+
+        return response()->json(['message' => 'Logout successful'], 200);
     }
 
     public function Refresh(Request $request)
@@ -43,7 +60,15 @@ class AuthController extends Controller
             return response()->json(['message' => 'Refresh token is required'], 422);
         }
 
-        $result = $this->authService->Refresh($refreshToken);
-        return response()->json($result['data'], $result['status']);
+        $data = $this->authService->Refresh($refreshToken);
+
+        if (!$data) {
+            return response()->json(['message' => 'Invalid or expired refresh token'], 401);
+        }
+
+        return response()->json([
+            'message' => 'Token refreshed successfully',
+            'data'    => $data,
+        ], 200);
     }
 }

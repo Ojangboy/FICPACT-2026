@@ -17,9 +17,15 @@ class GardenController extends Controller
 
     public function show(Request $request)
     {
-        $user   = $request->user();
-        $result = $this->gardenService->applyDecay($user);
+        $garden = $this->gardenService->applyDecay($request->user());
 
-        return response()->json($result['data'], $result['status']);
+        if (!$garden) {
+            return response()->json(['message' => 'Garden not found'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Garden retrieved successfully',
+            'data'    => $garden,
+        ], 200);
     }
 }

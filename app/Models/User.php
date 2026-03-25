@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\PomodoroSessions;
+use App\Models\RefreshToken;
 
 class User extends Authenticatable
 {
@@ -26,6 +28,9 @@ class User extends Authenticatable
         'total_exp',
         'exp_gained',
         'level',
+        'streak_count',
+        'streak_expired_at',
+        'last_streak_reset',
     ];
 
     /**
@@ -45,10 +50,25 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'email_verified_at'  => 'datetime',
+            'password'           => 'hashed',
+            'streak_expired_at'  => 'datetime',
         ];
     }
+
+    public function getExpRequiredAttribute(): int
+    {
+        $levelService = app(\App\Services\Gamification\LevelService::class);
+        return $levelService->getExpReqForNextLevel($this->level ?? 1);
+    }
+
+    public function getMultiplierAttribute(): float
+    {
+        $streakService = app(\App\Services\Gamification\StreakService::class);
+        return $streakService->getStreakMultiplier($this->streak_count ?? 0);
+    }
+
+    protected $appends = ['exp_required', 'multiplier'];
 
     public function garden()
     {
@@ -58,6 +78,11 @@ class User extends Authenticatable
     public function tasks()
     {
         return $this->hasMany(Tasks::class, 'user_id');
+    }
+
+    public function pomodoroSessions()
+    {
+        return $this->hasMany(PomodoroSessions::class, 'user_id');
     }
 
     public function refreshTokens()

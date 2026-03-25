@@ -6,12 +6,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class PomodoroSessions extends Model
 {
+    public $timestamps = false;
+
     protected $fillable = [
         'user_id',
-        'duration'
+        'duration_minutes',
+        'status',
+        'cooldown_until',
+        'created_at',
     ];
 
-    public function user() {
+    protected $casts = [
+        'cooldown_until' => 'datetime',
+        'created_at'     => 'datetime',
+    ];
+
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 }

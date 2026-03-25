@@ -17,6 +17,11 @@ class UserRepository
         return User::where('email', $email)->first();
     }
 
+    public function findByUsername(string $username): ?User
+    {
+        return User::where('username', $username)->first();
+    }
+
     public function existsByEmail(string $email): bool
     {
         return User::where('email', $email)->exists();
@@ -55,6 +60,26 @@ class UserRepository
     public function currentExp(User $user): int
     {
         return $user->total_exp;
+    }
+
+    public function incrementStreak(User $user): User
+    {
+        $user->update([
+            'streak_count'      => $user->streak_count + 1,
+            'streak_expired_at' => now()->addMinutes(60),
+        ]);
+
+        return $user->fresh();
+    }
+
+    public function resetStreak(User $user): User
+    {
+        $user->update([
+            'streak_count'      => 0,
+            'streak_expired_at' => null,
+        ]);
+
+        return $user->fresh();
     }
 
 }

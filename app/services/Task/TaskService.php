@@ -3,84 +3,49 @@
 namespace App\Services\Task;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use App\Repositories\TaskRepository;
 use App\Repositories\GardenRepository;
 use App\Services\Gamification\ExpService;
-use App\Services\Gamification\LevelService;
+use App\Services\Gamification\GardenService;
 
 class TaskService
 {
     private TaskRepository $taskRepository;
     private GardenRepository $gardenRepository;
     private ExpService $expService;
-    private LevelService $levelService;
+    private GardenService $gardenService;
 
-    public function __construct(TaskRepository $taskRepository, GardenRepository $gardenRepository, ExpService $expService, LevelService $levelService)
-    {
-        $this->taskRepository = $taskRepository;
+    public function __construct(
+        TaskRepository $taskRepository,
+        GardenRepository $gardenRepository,
+        ExpService $expService,
+        GardenService $gardenService
+    ) {
+        $this->taskRepository   = $taskRepository;
         $this->gardenRepository = $gardenRepository;
-        $this->expService = $expService;
-        $this->levelService = $levelService;
+        $this->expService       = $expService;
+        $this->gardenService    = $gardenService;
     }
 
-    public function getAllTasks()
+    public function getAllTasks(?string $status = null)
     {
-        $user = Auth::user();
-        $task = $this->taskRepository->getAllByUser($user);
-
-        return [
-            'status' => 200,
-            'data' => [
-                'message' => 'Tasks retrieved successfully',
-                'data' => [
-                    'task' => $task,
-                ],
-            ],
-        ];
+        return $this->taskRepository->getAllByUser(Auth::user(), $status);
     }
 
     public function createTask(array $data)
     {
         $user = Auth::user();
 
-        $deadlineMaps = [
-            'easy' => 1,
-            'medium' => 3,
-            'hard' => 7,
-        ];
+        $deadlineMaps     = ['easy' => 1, 'medium' => 3, 'hard' => 7];
+        $difficulty       = $data['difficulty'] ?? 'easy';
+        $data['deadline'] = now()->addDays($deadlineMaps[$difficulty] ?? 1);
 
-        $difficulty = $data['difficulty'] ?? 'easy';
-        $days = $deadlineMaps[$difficulty] ?? 1;
-        $data['deadline'] = now()->addDays($days);
-
-        $task = $this->taskRepository->createForUser($user, $data);
-
-        return [
-            'status' => 201,
-            'data' => [
-                'message' => 'Task created successfully',
-                'data' => [
-                    'task' => $task,
-                ],
-            ],
-        ];
+        return $this->taskRepository->createForUser($user, $data);
     }
 
     public function getTaskById($id)
     {
-        $user = Auth::user();
-        $task = $this->taskRepository->findByUserAndId($user, $id);
-
-        return [
-            'status' => 200,
-            'data' => [
-                'message' => 'Task retrieved successfully',
-                'data' => [
-                    'task' => $task,
-                ],
-            ],
-        ];
+        return $this->taskRepository->findByUserAndId(Auth::user(), $id);
     }
 
     public function updateTask(array $data, $id)
@@ -88,21 +53,9 @@ class TaskService
         $user = Auth::user();
         $task = $this->taskRepository->findByUserAndId($user, $id);
 
-        if (!$task) {
-            return null;
-        }
+        if (!$task) return null;
 
-        $task = $this->taskRepository->updateTask($task, $data);
-
-        return [
-            'status' => 200,
-            'data' => [
-                'message' => 'Task updated successfully',
-                'data' => [
-                    'task' => $task,
-                ],
-            ],
-        ];
+        return $this->taskRepository->updateTask($task, $data);
     }
 
     public function deleteTask($id)
@@ -110,52 +63,33 @@ class TaskService
         $user = Auth::user();
         $task = $this->taskRepository->findByUserAndId($user, $id);
 
-        if (!$task) {
-            return null;
-        }
+        if (!$task) return null;
 
         $this->taskRepository->deleteTask($task);
-        
-        return [
-            'status' => 200,
-            'data' => [
-                'message' => 'Task deleted successfully',
-                'data' => [
-                    'task' => $task,
-                ],
-            ],
-        ];
+        return $task;
     }
 
-    public function markTaskAsComplete($id)
+    public function markTaskAsComplete($id): ?array
     {
-        $user = Auth::user();
-        $task = $this->taskRepository->findByUserAndId($user, $id);
+        $user   = Auth::user();
+        $task   = $this->taskRepository->findByUserAndId($user, $id);
         $garden = $this->gardenRepository->getGardenByUser($user);
 
-        if (!$task || !$garden) {
-            return null;
-        }
+        if (!$task || !$garden || $task->is_completed) return null;
 
-        if ($task->is_completed) {
-            return null;
-        }
-
-        $task = $this->taskRepository->markCompleted($task);
+        $task      = $this->taskRepository->markCompleted($task);
         $rewardExp = $this->expService->addExp($user, $task->difficulty);
-        $rewardLevel = $this->levelService->checkLevelUp($user);
+
+        $this->gardenService->addHp($user, $task->difficulty);
+        $user->refresh();
+        $this->gardenService->syncPlantStage($user);
+
+        $garden = $this->gardenRepository->getGardenByUser($user);
 
         return [
-            'status' => 200,
-            'data' => [
-                'message' => 'Task completed successfully',
-                'data' => [
-                    'task' => $task,
-                    'garden' => $garden,
-                    'reward_exp' => $rewardExp,
-                    'reward_level' => $rewardLevel,
-                ],
-            ],
+            'task'       => $task,
+            'garden'     => $garden,
+            'reward_exp' => $rewardExp,
         ];
     }
 }

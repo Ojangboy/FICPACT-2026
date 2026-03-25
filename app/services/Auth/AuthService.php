@@ -18,18 +18,21 @@ class AuthService
         $this->refreshTokenRepository = $refreshTokenRepository;
     }
 
-    public function Login(array $data): array
+    public function Login(array $data): ?array
     {
+        $user = $this->userRepository->findByUsername($data['username']);
+
+        if (!$user) {
+            return null;
+        }
+
         $ok = Auth::attempt([
-            'email'    => $data['email'],
+            'email'    => $user->email,
             'password' => $data['password'],
         ]);
 
         if (!$ok) {
-            return [
-                'status' => 401,
-                'data'   => ['message' => 'Invalid credentials'],
-            ];
+            return null;
         }
 
         $user         = Auth::user();
@@ -37,78 +40,48 @@ class AuthService
         $refreshToken = $this->refreshTokenRepository->create($user);
 
         return [
-            'status' => 200,
-            'data'   => [
-                'message' => 'Login successful',
-                'data'    => [
-                    'user'          => $user,
-                    'access_token'  => $accessToken,
-                    'refresh_token' => $refreshToken->token,
-                ],
-            ],
+            'user'          => $user,
+            'access_token'  => $accessToken,
+            'refresh_token' => $refreshToken->token,
         ];
     }
 
-    public function Register(array $data): array
+    public function Register(array $data): ?array
     {
-        if ($this->userRepository->existsByEmail($data['email'])) {
-            return [
-                'status' => 400,
-                'data'   => ['message' => 'Email already exists'],
-            ];
+        if($this->userRepository->findByUsername($data['username'])) {
+            return null;
         }
-
-        $user         = $this->userRepository->create($data);
+        
+        $user = $this->userRepository->create($data);
         $this->userRepository->createGardenForUser($user, $data);
-        $accessToken  = $user->createToken('access_token')->plainTextToken;
+        $accessToken = $user->createToken('access_token')->plainTextToken;
         $refreshToken = $this->refreshTokenRepository->create($user);
 
         return [
-            'status' => 201,
-            'data'   => [
-                'message' => 'User registered successfully',
-                'data'    => [
-                    'user'          => $user->fresh('garden'),
-                    'access_token'  => $accessToken,
-                    'refresh_token' => $refreshToken->token,
-                ],
-            ],
+            'user'          => $user->fresh('garden'),
+            'access_token'  => $accessToken,
+            'refresh_token' => $refreshToken->token,
         ];
     }
 
-    public function Logout(Request $request): array
+    public function Logout(Request $request): void
     {
-        $user = $request->user();
-
-        if (!$user) {
-            return [
-                'status' => 401,
-                'data'   => ['message' => 'Unauthenticated'],
-            ];
-        }
-
+        $user  = $request->user();
         $token = $user->currentAccessToken();
+
         if ($token) {
             $user->tokens()->where('id', $token->id)->delete();
         }
 
         $this->refreshTokenRepository->deleteByUser($user);
-
-        return [
-            'status' => 200,
-            'data'   => ['message' => 'Logout successful'],
-        ];
     }
 
-    public function Refresh(string $refreshToken): array
+    public function Refresh(string $refreshToken): ?array
     {
         $record = $this->refreshTokenRepository->findValid($refreshToken);
 
         if (!$record) {
-            return [
-                'status' => 401,
-                'data'   => ['message' => 'Invalid or expired refresh token'],
-            ];
+            return null;
         }
 
         $user = $record->user;
@@ -118,14 +91,8 @@ class AuthService
         $newRefreshToken = $this->refreshTokenRepository->create($user);
 
         return [
-            'status' => 200,
-            'data'   => [
-                'message' => 'Token refreshed successfully',
-                'data'    => [
-                    'access_token'  => $accessToken,
-                    'refresh_token' => $newRefreshToken->token,
-                ],
-            ],
+            'access_token'  => $accessToken,
+            'refresh_token' => $newRefreshToken->token,
         ];
     }
 }

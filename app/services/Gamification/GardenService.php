@@ -2,9 +2,8 @@
 
 namespace App\Services\Gamification;
 
-use App\Models\Gardens;
-use App\Repositories\GardenRepository;
 use App\Models\User;
+use App\Repositories\GardenRepository;
 
 class GardenService
 {
@@ -19,87 +18,46 @@ class GardenService
     {
         $garden = $this->gardenRepository->getGardenByUser($user);
 
-        if ($garden === null) {
-            return [
-                'status' => 404,
-                'data' => [
-                    'message' => 'Garden not found',
-                ],
-            ];
+        if (!$garden) return null;
+
+        if (!$garden->last_decay_check) {
+            return $this->gardenRepository->updateLastDecayCheck($garden, now());
         }
 
-        $lastDecayCheck = $garden->last_decay_check;
-        $now = now();
-        $diffInHours = $now->diffInHours($lastDecayCheck);
-        $diffInDays = (int) ($diffInHours / 24);
+        $diffInHours = now()->diffInHours($garden->last_decay_check);
+        $diffInDays  = (int) ($diffInHours / 24);
 
         if ($diffInDays > 0) {
             $garden = $this->gardenRepository->updateHp($garden, -$diffInDays * 10);
+            $garden = $this->gardenRepository->updateLastDecayCheck($garden, now());
         } else {
-            $garden = $this->gardenRepository->updateLastDecayCheck($garden, $now);
+            $garden = $this->gardenRepository->updateLastDecayCheck($garden, now());
         }
 
-        return [
-            'status' => 200,
-            'data' => [
-                'message' => 'Garden decay applied successfully',
-                'data' => [
-                    'garden' => $garden,
-                ],
-            ],
-        ];
+        return $garden;
     }
 
-    public function addHp(User $user, string $difficulty)
+    public function addHp(User $user, string $difficulty): void
     {
         $garden = $this->gardenRepository->getGardenByUser($user);
 
-        if ($garden === null) {
-            return [
-                'status' => 404,
-                'data' => [
-                    'message' => 'Garden not found',
-                ],
-            ];
-        }
+        if (!$garden) return;
 
-        $hpMapping = [
-            'easy' => 5,
-            'medium' => 10,
-            'hard' => 20,
-        ];
-        $hp = $hpMapping[$difficulty] ?? 5;
-
-        $garden = $this->gardenRepository->updateHp($garden, $hp);
-        $hpGained = $hp;
-
-        return [
-            'status' => 200,
-            'data' => [
-                'message' => 'Hp added successfully',
-                'data' => [
-                    'hp_gained' => $hpGained,
-                    'total_hp' => $garden->hp,
-                ],
-            ],
-        ];
+        $hpMapping = ['easy' => 5, 'medium' => 10, 'hard' => 20];
+        $this->gardenRepository->updateHp($garden, $hpMapping[$difficulty] ?? 5);
     }
 
     public function syncPlantStage(User $user): void
     {
         $garden = $this->gardenRepository->getGardenByUser($user);
 
-        if ($garden === null) {
-            return;
-        }
+        if (!$garden) return;
 
-        $newStage = $this->resolveStage($user->level);
-
-        $stageOrder = ['seed' => 0, 'sprout' => 1, 'tree' => 2];
+        $newStage    = $this->resolveStage($user->level);
+        $stageOrder  = ['seed' => 0, 'sprout' => 1, 'tree' => 2];
         $currentOrder = $stageOrder[$garden->plant_stage] ?? 0;
         $newOrder     = $stageOrder[$newStage] ?? 0;
 
-        // Stage hanya naik, tidak pernah turun
         if ($newOrder > $currentOrder) {
             $this->gardenRepository->updatePlantStage($garden, $newStage);
         }
@@ -107,14 +65,8 @@ class GardenService
 
     private function resolveStage(int $level): string
     {
-        if ($level >= 31) {
-            return 'tree';
-        }
-
-        if ($level >= 16) {
-            return 'sprout';
-        }
-
+        if ($level >= 35) return 'tree';
+        if ($level >= 15) return 'sprout';
         return 'seed';
     }
 }

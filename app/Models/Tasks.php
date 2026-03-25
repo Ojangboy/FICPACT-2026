@@ -15,6 +15,7 @@ class Tasks extends Model
         'is_completed',
         'created_at',
         'updated_at',
+        'completed_at',
     ];
 
     public function user() {

@@ -8,9 +8,17 @@ use App\Models\Gardens;
 
 class TaskRepository
 {
-    public function getAllByUser(User $user)
+    public function getAllByUser(User $user, ?string $status = null)
     {
-        return $user->tasks()->latest()->get();
+        $query = $user->tasks()->latest();
+
+        if ($status === 'active') {
+            $query->where('is_completed', false);
+        } elseif ($status === 'completed') {
+            $query->where('is_completed', true);
+        }
+
+        return $query->get();
     }
 
     public function createForUser(User $user, array $data): Tasks

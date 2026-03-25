@@ -1,50 +1,88 @@
-const BASE_URL = 'http://localhost:8000/api';
+const BASE_URL = "http://127.0.0.1:8000/api";
 
 const apiFetch = async (endpoint, options = {}) => {
-  const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem("access_token");
 
-  const headers = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...options.headers,
-  };
+    const headers = {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options.headers,
+    };
 
-  const res = await fetch(`${BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+    const res = await fetch(`${BASE_URL}${endpoint}`, {
+        ...options,
+        headers,
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if (!res.ok) {
-    throw { status: res.status, data };
-  }
+    if (!res.ok) {
+        throw { status: res.status, data };
+    }
 
-  return data;
+    return data;
 };
 
 export const authApi = {
-  register: (payload) =>
-    apiFetch('/register', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
+    register: (payload) =>
+        apiFetch("/register", {
+            method: "POST",
+            body: JSON.stringify(payload),
+        }),
 
-  login: (payload) =>
-    apiFetch('/login', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
+    login: (payload) =>
+        apiFetch("/login", {
+            method: "POST",
+            body: JSON.stringify(payload),
+        }),
 
-  logout: () =>
-    apiFetch('/logout', { method: 'POST' }),
+    logout: () => apiFetch("/logout", { method: "POST" }),
 
-  refresh: (refreshToken) =>
-    apiFetch('/refresh', {
-      method: 'POST',
-      body: JSON.stringify({ refresh_token: refreshToken }),
-    }),
+    refresh: (refreshToken) =>
+        apiFetch("/refresh", {
+            method: "POST",
+            body: JSON.stringify({ refresh_token: refreshToken }),
+        }),
+};
+
+export const userApi = {
+    getProfile: () => apiFetch("/user"),
+};
+
+export const gardenApi = {
+    getGarden: () => apiFetch("/garden"),
+};
+
+export const tasksApi = {
+    getTasks: (status) => {
+        const query = status ? `?status=${status}` : "";
+        return apiFetch(`/tasks${query}`);
+    },
+    createTask: (payload) =>
+        apiFetch("/tasks", {
+            method: "POST",
+            body: JSON.stringify(payload),
+        }),
+    updateTask: (id, payload) =>
+        apiFetch(`/tasks/${id}`, {
+            method: "PUT",
+            body: JSON.stringify(payload),
+        }),
+    deleteTask: (id) =>
+        apiFetch(`/tasks/${id}`, {
+            method: "DELETE",
+        }),
+    completeTask: (id) =>
+        apiFetch(`/tasks/${id}/complete`, {
+            method: "PATCH",
+        }),
+};
+
+export const pomodoroApi = {
+    start: () => apiFetch("/pomodoro/start", { method: "POST" }),
+    finish: () => apiFetch("/pomodoro/finish", { method: "POST" }),
+    getStatus: () => apiFetch("/pomodoro/status"),
 };
 
 export default apiFetch;
