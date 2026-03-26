@@ -47,9 +47,9 @@ class PomodoroService
 
         $minutesElapsed = $session->created_at->diffInMinutes(now());
 
-        // if ($minutesElapsed < 25) {
-        //     return ['error' => 'TOO_EARLY', 'remaining' => 25 - $minutesElapsed];
-        // }
+        if ($minutesElapsed < 25) {
+            return ['error' => 'TOO_EARLY', 'remaining' => 25 - $minutesElapsed];
+        }
 
         $session    = $this->pomodoroRepository->finish($session);
         $streakInfo = $this->streakService->updateStreak($user);
