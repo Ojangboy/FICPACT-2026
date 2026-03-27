@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   FaLeaf, FaSeedling, FaCalendarAlt, FaStar, 
@@ -18,7 +18,57 @@ import imgGoal from '../assets/gambar-card-1.jpeg';
 import imgDash from '../assets/gambar-card-1.jpeg';
 const Dashboard = () => {
   const navigate = useNavigate();
-  // Data untuk Section How It Works (ORANGE)
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMobileMenuOpen && !event.target.closest('.mobile-menu-container')) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isMobileMenuOpen]);
+
+  // Smooth scroll to section
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactMessage, setContactMessage] = useState('');
+
+  const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
+  const handleSubmitWhatsApp = () => {
+    if (!contactMessage.trim()) {
+      window.alert('Silakan isi pesan terlebih dahulu.');
+      return;
+    }
+    const phone = '6285947271670';
+    const text = `Email: ${contactEmail || '-'}%0A%0AMessage: ${contactMessage}`;
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  };
+
   const steps = [
     {
       id: 1,
@@ -66,10 +116,10 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen font-sans text-gray-800 bg-white overflow-x-hidden">
+    <div className={`min-h-screen font-sans text-gray-800 bg-white overflow-x-hidden ${isScrolled ? 'pt-20' : ''}`}>
       
       {/* --- SECTION 1: HERO SECTION --- */}
-      <section className="relative h-[650px] w-full overflow-hidden">
+      <section id="home" className="relative h-[650px] w-full overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${habitLogo})` }}
@@ -78,19 +128,97 @@ const Dashboard = () => {
         </div>
 
         {/* Navbar Floating */}
-        <div className="relative z-20 px-4 pt-6">
-          <nav className="flex items-center justify-between px-8 py-3 mx-auto max-w-5xl bg-white/30 backdrop-blur-md rounded-full border border-white/40 shadow-lg">
+        <div className="mobile-menu-container sticky top-0 z-50 px-4 pt-2">
+          <nav className={`flex items-center justify-between px-8 py-3 mx-auto max-w-5xl rounded-full border transition-all duration-300 ${isScrolled ? 'border-gray-200 bg-white/95 shadow-lg' : 'border-white/40 bg-white/30 shadow-lg'}`}>
             <div className="text-xl font-bold flex items-center">
               <span className="text-green-900">Garden</span>
               <span className="text-pink-500 ml-1">of Habits</span>
             </div>
+            
+            {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-10 font-bold text-sm text-green-950">
-              <a href="#" className="hover:text-pink-600 transition">Home</a>
-              <a href="#" className="hover:text-pink-600 transition">How it Works</a>
-              <a href="#" className="hover:text-pink-600 transition">Key Features</a>
-              <a href="#" className="hover:text-pink-600 transition">Contact</a>
+              <button 
+                onClick={() => scrollToSection('home')}
+                className="hover:text-pink-600 transition"
+              >
+                Home
+              </button>
+              <button 
+                onClick={() => scrollToSection('how-it-works')}
+                className="hover:text-pink-600 transition"
+              >
+                How it Works
+              </button>
+              <button 
+                onClick={() => scrollToSection('key-features')}
+                className="hover:text-pink-600 transition"
+              >
+                Key Features
+              </button>
+              <button 
+                onClick={() => scrollToSection('contact')}
+                className="hover:text-pink-600 transition"
+              >
+                Contact
+              </button>
             </div>
+
+            {/* Mobile Menu Button */}
+            <button 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 rounded-full hover:bg-white/20 transition"
+            >
+              <div className="w-6 h-6 flex flex-col justify-center items-center">
+                <span className={`block w-5 h-0.5 bg-green-900 transition-transform duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-1' : '-translate-y-1'}`}></span>
+                <span className={`block w-5 h-0.5 bg-green-900 transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+                <span className={`block w-5 h-0.5 bg-green-900 transition-transform duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-1' : 'translate-y-1'}`}></span>
+              </div>
+            </button>
           </nav>
+
+          {/* Mobile Menu Dropdown */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden absolute top-full left-4 right-4 mt-2 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200 py-4 px-6">
+              <div className="flex flex-col space-y-4">
+                <button 
+                  onClick={() => {
+                    scrollToSection('home');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-left font-bold text-green-950 hover:text-pink-600 transition py-2"
+                >
+                  Home
+                </button>
+                <button 
+                  onClick={() => {
+                    scrollToSection('how-it-works');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-left font-bold text-green-950 hover:text-pink-600 transition py-2"
+                >
+                  How it Works
+                </button>
+                <button 
+                  onClick={() => {
+                    scrollToSection('key-features');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-left font-bold text-green-950 hover:text-pink-600 transition py-2"
+                >
+                  Key Features
+                </button>
+                <button 
+                  onClick={() => {
+                    scrollToSection('contact');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-left font-bold text-green-950 hover:text-pink-600 transition py-2"
+                >
+                  Contact
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Hero Content */}
@@ -137,7 +265,7 @@ const Dashboard = () => {
       </section>
 
       {/* --- SECTION 3: HOW IT WORKS (ORANGE) --- */}
-      <section className="relative py-24 px-6 bg-[#FFB300] overflow-hidden">
+      <section id="how-it-works" className="relative py-24 px-6 bg-[#FFB300] overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none" 
              style={{ backgroundImage: 'linear-gradient(90deg, #000 50%, transparent 50%)', backgroundSize: '40px 100%' }}></div>
 
@@ -161,7 +289,7 @@ const Dashboard = () => {
       </section>
 
       {/* --- SECTION 4: KEY FEATURES (PINK) --- */}
-      <section className="relative py-24 px-6 bg-[#FDE2E4] overflow-hidden">
+      <section id="key-features" className="relative py-24 px-6 bg-[#FDE2E4] overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none" 
              style={{ backgroundImage: 'linear-gradient(90deg, #D14D72 50%, transparent 50%)', backgroundSize: '60px 100%' }}></div>
         
@@ -192,7 +320,7 @@ const Dashboard = () => {
       </section>
 
       {/* --- SECTION 5: FOOTER (GET IN TOUCH) --- */}
-      <footer className="relative bg-[#E9E9F0] pt-24 overflow-hidden">
+      <footer id="contact" className="relative bg-[#E9E9F0] pt-24 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 pb-20 relative z-10">
           <div className="flex flex-col md:flex-row justify-between items-start gap-16">
             
@@ -224,19 +352,23 @@ const Dashboard = () => {
 
             {/* Form Kontak */}
             <div className="md:w-1/2 w-full">
-              <form className="space-y-4 max-w-lg ml-auto">
+              <form className="space-y-4 max-w-lg ml-auto" onSubmit={(e) => { e.preventDefault(); handleSubmitWhatsApp(); }}>
                 <input 
                   type="email" 
+                  value={contactEmail}
+                  onChange={(e) => setContactEmail(e.target.value)}
                   placeholder="Email" 
                   className="w-full px-6 py-4 rounded-2xl bg-pink-50 border border-pink-100 focus:outline-none focus:ring-2 focus:ring-pink-300 placeholder-pink-300 font-medium shadow-inner"
                 />
                 <textarea 
                   placeholder="Message.." 
                   rows="4"
+                  value={contactMessage}
+                  onChange={(e) => setContactMessage(e.target.value)}
                   className="w-full px-6 py-4 rounded-2xl bg-pink-50 border border-pink-100 focus:outline-none focus:ring-2 focus:ring-pink-300 placeholder-pink-300 font-medium shadow-inner resize-none"
                 ></textarea>
                 <button 
-                  type="button"
+                  type="submit"
                   className="w-full py-4 bg-[#E91E63] hover:bg-[#D81B60] text-white font-black text-xl rounded-2xl shadow-lg transition-all active:scale-95"
                 >
                   Send Message
@@ -257,9 +389,7 @@ const Dashboard = () => {
         <div className="bg-[#5E8D7A] py-6 px-10 relative z-20">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-6 text-white text-2xl">
-              <FaFacebook className="hover:text-pink-200 cursor-pointer transition" />
-              <FaInstagram className="hover:text-pink-200 cursor-pointer transition" />
-              <FaWhatsapp className="hover:text-pink-200 cursor-pointer transition" />
+              {/* Social icons removed as requested */}
             </div>
             <p className="text-white text-3xl font-black italic tracking-tight">
               Let's Grow Together.
