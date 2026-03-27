@@ -4,6 +4,7 @@ import Onboarding from './components/Onboarding'
 import Login from './components/Login'
 import Register from './components/Register'
 import Dashboard from './components/Dashboard'
+import Garden from './components/Garden'
 import './App.css'
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/garden" element={<Garden />} />
 
         {/* Add more routes here later */}
 
