@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   FaLeaf, FaSeedling, FaCalendarAlt, FaStar, 
   FaEnvelope, FaMapMarkerAlt, FaFacebook, 
@@ -16,6 +17,7 @@ import imgTimer from '../assets/gambar-card-1.jpeg';
 import imgGoal from '../assets/gambar-card-1.jpeg';
 import imgDash from '../assets/gambar-card-1.jpeg';
 const Dashboard = () => {
+  const navigate = useNavigate();
   // Data untuk Section How It Works (ORANGE)
   const steps = [
     {
@@ -100,7 +102,10 @@ const Dashboard = () => {
             Level Up Your Focus in the Ultimate Productivity Playground
           </p>
           <div className="flex space-x-6">
-            <button className="bg-[#B3529E] hover:bg-purple-700 text-white px-10 py-4 rounded-full font-extrabold transition shadow-xl active:scale-95">
+            <button 
+              onClick={() => navigate('/Garden')}
+              className="bg-[#B3529E] hover:bg-purple-700 text-white px-10 py-4 rounded-full font-extrabold transition shadow-xl active:scale-95"
+            >
               View Garden
             </button>
           </div>
