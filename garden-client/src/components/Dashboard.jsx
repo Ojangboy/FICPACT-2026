@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -8,6 +9,7 @@ import { userApi, authApi } from '../api/api';
 import SettingsModal from './modals/SettingsModal';
 
 // Import Aset
+// Import Aset
 import habitLogo from '../assets/gambar-hero-section.jpeg'; 
 import imgStep1 from '../assets/gambar-card-1.jpeg'; 
 import imgStep2 from '../assets/gambar-card-2.jpeg';
@@ -15,6 +17,7 @@ import imgStep3 from '../assets/gambar-card-3.jpeg';
 import imgTimer from '../assets/gambar-card-1.jpeg'; 
 import imgGoal from '../assets/gambar-card-1.jpeg';
 import imgDash from '../assets/gambar-card-1.jpeg';
+
 
 const Dashboard = () => {
   const navigate = useNavigate();

@@ -12,8 +12,6 @@ import SettingsModal from './modals/SettingsModal';
 // --- IMPORT ASSET LOGO ---
 import flowerIcon from '../assets/logo-2.png'; 
 import textLogo from '../assets/logo-tulisan.png'; 
-
-// --- IMPORT ASSET BACKGROUND ---
 import gardenBg from '../assets/gambar-login-regist.jpeg'; 
 import groundBg from '../assets/tanah.png'; 
 
@@ -199,36 +197,24 @@ const GardenDashboard = () => {
 
   const getGrowthData = (level) => {
     if (level >= 1 && level <= 14) {
-      return {
-        stage: "Seed Stage",
-        description: "A seed has been planted. Your habits are starting to take root!",
-        icon: <div className="text-8xl animate-bounce">🌱</div>,
-        progressColor: "bg-amber-500"
-      };
+      return { stage: "Seed Stage", description: "A seed has been planted. Your habits are starting to take root!", icon: <div className="text-8xl animate-bounce">🌱</div>, progressColor: "bg-amber-500" };
     } else if (level >= 15 && level <= 34) {
-      return {
-        stage: "Sprout Stage",
-        description: "Your garden is showing its first strong growth! Keep it up.",
-        icon: <Sprout size={160} className="text-emerald-500 animate-pulse" />,
-        progressColor: "bg-emerald-500"
-      };
+      return { stage: "Sprout Stage", description: "Your garden is showing its first strong growth! Keep it up.", icon: <Sprout size={160} className="text-emerald-500 animate-pulse" />, progressColor: "bg-emerald-500" };
     } else if (level >= 35) {
-      return {
-        stage: "Tree Stage",
-        description: "A majestic tree stands tall. Your habits are now deeply rooted!",
-        icon: <TreeDeciduous size={200} className="text-green-700" />,
-        progressColor: "bg-green-700"
-      };
+      return { stage: "Tree Stage", description: "A majestic tree stands tall. Your habits are now deeply rooted!", icon: <TreeDeciduous size={200} className="text-green-700" />, progressColor: "bg-green-700" };
     }
-    return {
-      stage: "Getting Ready",
-      description: "Complete your first habit to plant a seed!",
-      icon: <Flower2 size={100} className="text-slate-300" />,
-      progressColor: "bg-slate-400"
-    };
+    return { stage: "Getting Ready", description: "Complete your first habit to plant a seed!", icon: <Flower2 size={100} className="text-slate-300" />, progressColor: "bg-slate-400" };
   };
 
   const growth = getGrowthData(currentLevel);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-emerald-50">
+        <Loader2 className="animate-spin text-emerald-600" size={48} />
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen w-full overflow-y-auto md:overflow-hidden font-sans flex flex-col bg-[#FDE2E4]">

@@ -21,7 +21,7 @@ const apiFetch = async (endpoint, options = {}) => {
         data = await res.json();
     } else {
         // Handle non-json responses (e.g. server error pages)
-        data = { message: await res.text() || res.statusText };
+        data = { message: (await res.text()) || res.statusText };
     }
 
     if (!res.ok) {
@@ -55,10 +55,11 @@ export const authApi = {
 
 export const userApi = {
     getProfile: () => apiFetch("/user"),
-    updatePassword: (payload) => apiFetch("/user/settings/password", {
-        method: "POST",
-        body: JSON.stringify(payload),
-    }),
+    updatePassword: (payload) =>
+        apiFetch("/user/settings/password", {
+            method: "POST",
+            body: JSON.stringify(payload),
+        }),
     updateAvatar: async (formData) => {
         const token = localStorage.getItem("access_token");
         const res = await fetch(`${BASE_URL}/user/settings/avatar`, {
@@ -72,7 +73,7 @@ export const userApi = {
         const data = await res.json();
         if (!res.ok) throw { status: res.status, data };
         return data;
-    }
+    },
 };
 
 export const gardenApi = {
