@@ -29,9 +29,10 @@ class GardenService
 
         if ($diffInDays > 0) {
             $garden = $this->gardenRepository->updateHp($garden, -$diffInDays * 10);
-            $garden = $this->gardenRepository->updateLastDecayCheck($garden, now());
-        } else {
-            $garden = $this->gardenRepository->updateLastDecayCheck($garden, now());
+            
+            // Only increment by the full days we processed, preserving the "extra hours" for the next check
+            $newCheckDate = \Carbon\Carbon::parse($garden->last_decay_check)->addDays($diffInDays);
+            $garden = $this->gardenRepository->updateLastDecayCheck($garden, $newCheckDate);
         }
 
         return $garden;

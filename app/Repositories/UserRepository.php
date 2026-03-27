@@ -5,10 +5,15 @@ namespace App\Repositories;
 use App\Models\User;
 use App\Models\Gardens;
 
+use Illuminate\Support\Facades\Hash;
+
 class UserRepository
 {
     public function create(array $data): User
     {
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
         return User::create($data);
     }
 

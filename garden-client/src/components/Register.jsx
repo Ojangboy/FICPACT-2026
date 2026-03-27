@@ -72,19 +72,6 @@ const Register = () => {
             <h2 className="text-4xl font-bold text-gray-800 mb-8">Register</h2>
             
             <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Field Email */}
-            <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-gray-600 ml-1">Email</label>
-                <input
-                  name="username"
-                  type="text"
-                  placeholder="Input email"
-                  className="w-full px-6 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
               {/* Field Username */}
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-semibold text-gray-600 ml-1">Username</label>

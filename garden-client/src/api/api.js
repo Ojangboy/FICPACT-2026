@@ -15,7 +15,14 @@ const apiFetch = async (endpoint, options = {}) => {
         headers,
     });
 
-    const data = await res.json();
+    let data = {};
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+    } else {
+        // Handle non-json responses (e.g. server error pages)
+        data = { message: await res.text() || res.statusText };
+    }
 
     if (!res.ok) {
         throw { status: res.status, data };
@@ -48,6 +55,24 @@ export const authApi = {
 
 export const userApi = {
     getProfile: () => apiFetch("/user"),
+    updatePassword: (payload) => apiFetch("/user/settings/password", {
+        method: "POST",
+        body: JSON.stringify(payload),
+    }),
+    updateAvatar: async (formData) => {
+        const token = localStorage.getItem("access_token");
+        const res = await fetch(`${BASE_URL}/user/settings/avatar`, {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) throw { status: res.status, data };
+        return data;
+    }
 };
 
 export const gardenApi = {

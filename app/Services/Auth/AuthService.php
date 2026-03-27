@@ -35,7 +35,8 @@ class AuthService
             return null;
         }
 
-        $user         = Auth::user();
+        // Use the $user object directly instead of Auth::user() 
+        // which might return incorrect user if session conflict occurs
         $accessToken  = $user->createToken('access_token')->plainTextToken;
         $refreshToken = $this->refreshTokenRepository->create($user);
 

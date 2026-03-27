@@ -4,7 +4,7 @@ import loginImg from '../assets/gambar-login-regist.jpeg';
 import { authApi } from '../api/api';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -16,7 +16,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const res = await authApi.login({ email, password });
+      const res = await authApi.login({ username, password });
 
       localStorage.setItem('access_token', res.data.access_token);
       localStorage.setItem('refresh_token', res.data.refresh_token);
@@ -54,15 +54,15 @@ const Login = () => {
             <h2 className="text-4xl font-bold text-gray-800 mb-10">Login</h2>
             
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Field Email */}
+              {/* Field Username */}
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-gray-600 ml-1">Email</label>
+                <label className="text-sm font-semibold text-gray-600 ml-1">Username</label>
                 <input
-                  type="email"
-                  placeholder="Input email"
+                  type="text"
+                  placeholder="Input username"
                   className="w-full px-6 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </div>

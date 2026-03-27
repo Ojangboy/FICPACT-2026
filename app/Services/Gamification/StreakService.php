@@ -50,6 +50,14 @@ class StreakService
         ];
     }
 
+    public function checkAndResetStreak(User $user): User
+    {
+        if ($user->streak_expired_at && now()->isAfter($user->streak_expired_at)) {
+            $user = $this->userRepository->resetStreak($user);
+        }
+        return $user;
+    }
+
     public function getStreakMultiplier(int $streak): float
     {
         if ($streak >= 15){

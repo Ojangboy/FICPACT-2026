@@ -7,15 +7,18 @@ use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\GardenController;
 use App\Http\Controllers\Api\PomodoroController;
 
+use App\Http\Controllers\Api\UserController;
+
 Route::post('/login', [AuthController::class, 'Login']);
 Route::post('/register', [AuthController::class, 'Register']);
 Route::post('/refresh', [AuthController::class, 'Refresh']);
 Route::post('/logout', [AuthController::class, 'Logout'])->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    Route::post('/user/settings/password', [UserController::class, 'updatePassword']);
+    Route::post('/user/settings/avatar', [UserController::class, 'updateAvatar']);
+    
+    Route::get('/user', [UserController::class, 'getProfile']);
 
     Route::get('/garden', [GardenController::class, 'show']);
 
