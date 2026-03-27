@@ -48,6 +48,33 @@ export const authApi = {
 
 export const userApi = {
     getProfile: () => apiFetch("/user"),
+    updateProfile: async (payload) => {
+        const token = localStorage.getItem("access_token");
+
+        if (payload instanceof FormData) {
+            const res = await fetch(`${BASE_URL}/user`, {
+                method: 'PATCH',
+                headers: {
+                    Authorization: token ? `Bearer ${token}` : '',
+                    Accept: 'application/json',
+                },
+                body: payload,
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw { status: res.status, data };
+            }
+
+            return data;
+        }
+
+        return apiFetch("/user", {
+            method: "PATCH",
+            body: JSON.stringify(payload),
+        });
+    },
 };
 
 export const gardenApi = {
